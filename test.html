@@ -1,0 +1,91 @@
+<html>
+<head>
+	<script type="text/javascript" src="jquery-1.9.1.min.js"></script>
+	<style>
+	body{
+		margin: 0;
+		padding: 0;
+	}
+	</style>
+</head>
+<body>
+
+
+<div style="margin: 20px auto;" id="container">
+	<canvas id="canvas" style="border: 1px solid #ccc;"></canvas>
+</div>
+
+
+<script>
+var width = 800;
+var height = 400;
+$('#container').css('width', width);
+$('#container').css('height', height);
+$('#canvas').attr('width', width);
+$('#canvas').attr('height', height);
+
+//取得绘图用的上下文  
+var canvas=document.getElementById("canvas");  
+var ctx=canvas.getContext("2d");
+ctx.fillStyle = 'rgb(0,0,0)';
+
+function plot(x, y){
+	x *= width;
+	y *= height;
+	y = height - y;
+	// console.log(x,y);
+	ctx.fillRect(x, y, 1, 1);
+}
+
+var timing = {
+	a: function(t){
+		var scale = 10000;
+		sum = scale * (scale - 1)/2;
+		t *= scale;
+		if(t < 1){
+			return 0;
+		}
+		s2 = t * (t-1)/2;
+		return s2/sum;
+	},
+	linear: function(t){
+		return t;
+	},
+	easeIn: function(t){
+		return t*t;
+	},
+	easeOut: function(t){
+		return 1-timing.easeIn(1-t);
+	},
+};
+
+var animation = {
+	bounces: 8.5,
+	bounceFunc: timing.easeIn,
+	easingFunc: timing.easeOut,
+	accelateFunc: timing.linear,
+};
+
+for(var x=0; x<width; x+=0.1){
+	var t = x/width;
+	var bounce = animation.bounces * animation.bounceFunc(t);
+	var b_start = parseInt(bounce);
+	// TODO: 找出bounce开始对应的t'，然后t2=t-t'
+	
+	var t2 = bounce - b_start;
+	var sign = b_start % 2 == 0? 1 : -1;
+	if(sign == 1){
+		var y = animation.easingFunc(t2);
+	}else{
+		var y = animation.easingFunc(1-t2);
+	}
+
+	plot(t, y);
+}
+console.log('end');
+
+
+</script>
+
+</body>
+</html>
