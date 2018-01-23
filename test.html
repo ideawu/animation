@@ -143,11 +143,11 @@ for(var x=0; x<width; x+=0.1){
 	
 	if(uniq[step_s] == null){
 		uniq[step_s] = step_s;
-		if(step_s == 3 || step_s == 4){
+		// if(step_s == 3 || step_s == 4){
 			console.log(format(bounce), format(time));
 			console.log('step ' + format(step_s) + ', ' + format(step_e)
 					+ ' time ' + format(time_s) + ', ' + format(time_e));
-		}
+		// }
 	}
 	
 	var dir = step_s % 2;
@@ -158,10 +158,9 @@ for(var x=0; x<width; x+=0.1){
 	}
 	// var y = animation.easingFunc(t2);
 
-	var steps = Math.ceil(animation.bounces);
-	steps = Math.ceil(steps/2) * 2;
-	// steps = Math.round(steps/2 + 0.5) * 2; // 转成偶数
-	var loop = parseInt(step_s/2) * 2 + 2;
+	// 向上取偶
+	var steps = Math.ceil(animation.bounces/2) * 2;
+	var loop = step_s + 2;
 	y *= animation.accelateFunc(loop/steps);
 
 	plot(t, y);
