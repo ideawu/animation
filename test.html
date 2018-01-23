@@ -128,38 +128,29 @@ var uniq = {};
 
 for(var x=0; x<width; x+=0.1){
 	var t = x/width;
-	// t = 0.6152;
 	var bounce = reverse_func(animation.bounceFunc, t);
-	var step_s = parseInt(bounce * animation.bounces);
-	step_s = 2 * Math.floor(step_s/2); // 向下取偶
-	// var step_e = Math.min(step_s+1, animation.bounces);
+	var step_s = 2 * Math.floor(bounce * animation.bounces/2); // 向下取偶
 	var step_e = step_s+2;
 	var time_s = animation.bounceFunc(step_s/animation.bounces);
 	var time_e = animation.bounceFunc(step_e/animation.bounces);
 	
-	// var time = animation.bounceFunc(t);
-	time = t;
-	var t2 = (time - time_s)/(time_e - time_s);
-	
 	if(uniq[step_s] == null){
 		uniq[step_s] = step_s;
 		// if(step_s == 3 || step_s == 4){
-			console.log(format(bounce), format(time));
+			console.log(format(bounce), format(t));
 			console.log('step ' + format(step_s) + ', ' + format(step_e)
 					+ ' time ' + format(time_s) + ', ' + format(time_e));
 		// }
 	}
 	
-	var dir = step_s % 2;
+	var t2 = (t - time_s)/(time_e - time_s);
 	if(t2 < 0.5){
 		var y = animation.easingFunc(t2*2);
 	}else{
 		var y = animation.easingFunc(2*(1-t2));
 	}
-	// var y = animation.easingFunc(t2);
 
-	// 向上取偶
-	var steps = Math.ceil(animation.bounces/2) * 2;
+	var steps = Math.ceil(animation.bounces/2) * 2; // 向上取偶
 	var loop = step_s + 2;
 	y *= animation.accelateFunc(loop/steps);
 
