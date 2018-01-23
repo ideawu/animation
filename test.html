@@ -64,9 +64,10 @@ var timing = {
 };
 
 var animation = {
-	bounces: 8.3,
-	bounceFunc: timing.linear,
+	bounces: 5,
+	bounceFunc: timing.easeIn,
 	easingFunc: timing.easeOut,
+	// accelateFunc: function(p){return p;},
 	accelateFunc: timing.linear,
 };
 
@@ -109,7 +110,7 @@ var t = 0.2300001;
 // 根据时间反查第几bounce
 console.log(reverse_func(animation.bounceFunc, t));
 
-for(var x=0; x<width; x+=0.1){
+for(var x=0; x<width; x+=1){
 	var t = x/width;
 	var bounce = reverse_func(animation.bounceFunc, t);
 	var step_s = parseInt(bounce * animation.bounces);
@@ -125,9 +126,15 @@ for(var x=0; x<width; x+=0.1){
 	}else{
 		var y = animation.easingFunc(1-t2);
 	}
-	y *= animation.accelateFunc(t);
+	var steps = Math.ceil(animation.bounces);
+	steps = Math.round(steps/2 + 0.5) * 2; // 转成偶数
+	var loop = parseInt(step_s/2) * 2 + 2;
+	y *= animation.accelateFunc(loop/steps);
 
-	// console.log(t, step_s, step_e, bounce, time, time_s, time_e);
+	if(step_s == 0){
+		// console.log(format(t2), format(step_s), format(step_e),
+		// 	 format(bounce), format(time), format(time_s), format(time_e));
+	}
 	plot(t, y);
 }
 console.log('end');
