@@ -41,6 +41,11 @@ function format(v){
 	return parseInt(v*1000)/1000;
 }
 
+// 转成偶数
+function even(v){
+	return parseInt(v/2 + 0.5) * 2;
+}
+
 var timing = {
 	a: function(t){
 		var scale = 10000;
@@ -63,34 +68,11 @@ var timing = {
 	},
 };
 
-var animation = {
-	bounces: 5,
-	bounceFunc: timing.easeIn,
-	easingFunc: timing.easeOut,
-	// accelateFunc: function(p){return p;},
-	accelateFunc: timing.linear,
-};
-
-var bounces = [];
-for(var i=0; i<parseInt(animation.bounces); i++){
-	var step_s = i;
-	var step_e = Math.min(step_s + 1, animation.bounces);
-	var item = {
-		'step_s': step_s,
-		'step_e': step_e,
-		'bounce_s': format(step_s/animation.bounces),
-		'bounce_e': format(step_e/animation.bounces),
-		'time_s': format(animation.bounceFunc(step_s/animation.bounces)),
-		'time_e': format(animation.bounceFunc(step_e/animation.bounces)),
-	};
-	console.log(JSON.stringify(item));
-}
-
 function reverse_func(func, val){
 	var s = 0;
 	var e = 1.0;
 	var t = (e-s)/2;
-	var epsilon = 0.0001;
+	var epsilon = 0.00001;
 	while(1){
 		var v = func(t);
 		// console.log(format(s), format(e), format(t), format(v));
@@ -106,35 +88,82 @@ function reverse_func(func, val){
 	}
 }
 
-var t = 0.2300001;
-// 根据时间反查第几bounce
-console.log(reverse_func(animation.bounceFunc, t));
+var animation = {
+	bounces: 7.3,
+	bounceFunc: timing.easeIn,
+	easingFunc: timing.easeOut,
+	// accelateFunc: function(p){return 1;},
+	accelateFunc: timing.linear,
+};
 
-for(var x=0; x<width; x+=1){
+var bounces = [];
+var count = Math.ceil(animation.bounces);
+count = even(count);
+for(var i=0; i<count; i+=1){
+	var step_s = i;
+	var step_e = Math.min(step_s + 1, animation.bounces);
+	var item = {
+		'step_s': step_s,
+		'step_e': step_e,
+		'bounce_s': format(step_s/count),
+		'bounce_e': format(step_e/count),
+		'time_s': format(animation.bounceFunc(step_s/animation.bounces)),
+		'time_e': format(animation.bounceFunc(step_e/animation.bounces)),
+	};
+	console.log(JSON.stringify(item));
+}
+
+// var t = 0.2500001;
+// // 根据时间反查第几bounce
+// console.log(reverse_func(animation.bounceFunc, t));
+
+var uniq = {};
+
+// t = 0.6151;
+// console.log(t);
+// t = reverse_func(animation.bounceFunc, t);
+// console.log(t);
+// t = animation.bounceFunc(t);
+// console.log(t);
+
+for(var x=0; x<width; x+=0.1){
 	var t = x/width;
+	// t = 0.6152;
 	var bounce = reverse_func(animation.bounceFunc, t);
 	var step_s = parseInt(bounce * animation.bounces);
-	var step_e = Math.min(step_s + 1, animation.bounces);
+	step_s = 2 * Math.floor(step_s/2); // 向下取偶
+	// var step_e = Math.min(step_s+1, animation.bounces);
+	var step_e = step_s+2;
 	var time_s = animation.bounceFunc(step_s/animation.bounces);
 	var time_e = animation.bounceFunc(step_e/animation.bounces);
-	var time = animation.bounceFunc(bounce);
+	
+	// var time = animation.bounceFunc(t);
+	time = t;
 	var t2 = (time - time_s)/(time_e - time_s);
 	
-	var dir = step_s % 2;
-	if(dir == 0){
-		var y = animation.easingFunc(t2);
-	}else{
-		var y = animation.easingFunc(1-t2);
+	if(uniq[step_s] == null){
+		uniq[step_s] = step_s;
+		if(step_s == 3 || step_s == 4){
+			console.log(format(bounce), format(time));
+			console.log('step ' + format(step_s) + ', ' + format(step_e)
+					+ ' time ' + format(time_s) + ', ' + format(time_e));
+		}
 	}
+	
+	var dir = step_s % 2;
+	if(t2 < 0.5){
+		var y = animation.easingFunc(t2*2);
+	}else{
+		var y = animation.easingFunc(2*(1-t2));
+	}
+	// var y = animation.easingFunc(t2);
+
 	var steps = Math.ceil(animation.bounces);
-	steps = Math.round(steps/2 + 0.5) * 2; // 转成偶数
+	steps = Math.ceil(steps/2) * 2;
+	// steps = Math.round(steps/2 + 0.5) * 2; // 转成偶数
 	var loop = parseInt(step_s/2) * 2 + 2;
 	y *= animation.accelateFunc(loop/steps);
 
-	if(step_s == 0){
-		// console.log(format(t2), format(step_s), format(step_e),
-		// 	 format(bounce), format(time), format(time_s), format(time_e));
-	}
 	plot(t, y);
 }
 console.log('end');
