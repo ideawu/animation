@@ -37,6 +37,10 @@ function plot(x, y){
 	ctx.fillRect(x, y, 1, 1);
 }
 
+function format(v){
+	return parseInt(v*1000)/1000;
+}
+
 var timing = {
 	a: function(t){
 		var scale = 10000;
@@ -60,26 +64,70 @@ var timing = {
 };
 
 var animation = {
-	bounces: 8.5,
-	bounceFunc: timing.easeIn,
+	bounces: 8.3,
+	bounceFunc: timing.linear,
 	easingFunc: timing.easeOut,
 	accelateFunc: timing.linear,
 };
 
+var bounces = [];
+for(var i=0; i<parseInt(animation.bounces); i++){
+	var step_s = i;
+	var step_e = Math.min(step_s + 1, animation.bounces);
+	var item = {
+		'step_s': step_s,
+		'step_e': step_e,
+		'bounce_s': format(step_s/animation.bounces),
+		'bounce_e': format(step_e/animation.bounces),
+		'time_s': format(animation.bounceFunc(step_s/animation.bounces)),
+		'time_e': format(animation.bounceFunc(step_e/animation.bounces)),
+	};
+	console.log(JSON.stringify(item));
+}
+
+function reverse_func(func, val){
+	var s = 0;
+	var e = 1.0;
+	var t = (e-s)/2;
+	var epsilon = 0.0001;
+	while(1){
+		var v = func(t);
+		// console.log(format(s), format(e), format(t), format(v));
+		if(Math.abs(v-val) < epsilon || Math.abs(t-e) < epsilon || Math.abs(t-s) < epsilon){
+			return t;
+		}
+		if(v > val){
+			e = t;
+		}else{
+			s = t;
+		}
+		t = s + (e-s)/2;
+	}
+}
+
+var t = 0.2300001;
+// 根据时间反查第几bounce
+console.log(reverse_func(animation.bounceFunc, t));
+
 for(var x=0; x<width; x+=0.1){
 	var t = x/width;
-	var bounce = animation.bounces * animation.bounceFunc(t);
-	var b_start = parseInt(bounce);
-	// TODO: 找出bounce开始对应的t'，然后t2=t-t'
+	var bounce = reverse_func(animation.bounceFunc, t);
+	var step_s = parseInt(bounce * animation.bounces);
+	var step_e = Math.min(step_s + 1, animation.bounces);
+	var time_s = animation.bounceFunc(step_s/animation.bounces);
+	var time_e = animation.bounceFunc(step_e/animation.bounces);
+	var time = animation.bounceFunc(bounce);
+	var t2 = (time - time_s)/(time_e - time_s);
 	
-	var t2 = bounce - b_start;
-	var sign = b_start % 2 == 0? 1 : -1;
-	if(sign == 1){
+	var dir = step_s % 2;
+	if(dir == 0){
 		var y = animation.easingFunc(t2);
 	}else{
 		var y = animation.easingFunc(1-t2);
 	}
+	y *= animation.accelateFunc(t);
 
+	// console.log(t, step_s, step_e, bounce, time, time_s, time_e);
 	plot(t, y);
 }
 console.log('end');
