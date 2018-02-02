@@ -66,6 +66,12 @@ var timing = {
 	easeOut: function(t){
 		return 1-timing.easeIn(1-t);
 	},
+	loop: function(t){
+		return Math.sin(t * Math.PI);
+	},
+	swing: function(t){
+		return Math.sin(t * Math.PI * 2);
+	}
 };
 
 function reverse_func(func, val){
@@ -89,9 +95,9 @@ function reverse_func(func, val){
 }
 
 var animation = {
-	bounces: 7.3,
-	bounceFunc: timing.easeIn,
-	easingFunc: timing.easeOut,
+	bounces: 12,
+	bounceFunc: timing.linear,
+	easingFunc: timing.loop,
 	// accelateFunc: function(p){return 1;},
 	accelateFunc: timing.linear,
 };
